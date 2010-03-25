@@ -1,8 +1,8 @@
 import rapidsms
 import re
 from rapidsms.parsers.keyworder import Keyworder
-from apps.reporters.models import *
-from apps.ustawi.models import *
+from apps.reporters.models import Reporter
+from apps.girlchild.models import *
 
 
 class HandlerFailed (Exception):
@@ -51,41 +51,40 @@ class App (rapidsms.app.App):
         message.was_handled = bool(handled)
         return handled
 
-    keyword.prefix = ["sales","s","sl"]
-    @keyword(r'(\S+) (\S+) (\S+)')
+    keyword.prefix = ["fgm"]
+    @keyword(r'(\d+) (\S+)')
     @registered
-    def crop_sales(self, message,code,weight,price):
-	'''crop sales
+    def fgm_rescue(self,message,head_count):
+	'''enrollment per term
         Format: sales [crop] [weight] [price] 
         '''
-	
 	message.respond(message.text)
+       
 
-
-    keyword.prefix = ["harvest","h","yield"]
-    @keyword(r'(\d+) (\w+)')
+    keyword.prefix = ["employed","emp"]
+    @keyword(r'(\d+) (\S+)')
     @registered
-    def crop_harvests(self, message):
-	message.respond(message.text)
-
-
-    keyword.prefix = ["fc"]
-    @keyword(r'(\d+) (\w+)')
-    @registered
-    def farmers_count(self, message):
-    	''' number of farmers in a location
-        Format: visitors [head_count] 
+    def girls_employed(self,message,head_count,month):
+	'''enrollment per term
+        Format: sales [crop] [weight] [price] 
         '''
 	message.respond(message.text)
 
 
-    
-    keyword.prefix = ["visitors","visit","v"]
-    @keyword(r'(\d+) (\w+)')
+    keyword.prefix = ["voc"]
+    @keyword(r'(\d+) (\S+)')
     @registered
-    def farm_visitors(self, message,head_count):
-	'''
-        Format: visitors [head_count] 
+    def girls_vocational_training(self,message,head_count,month):
+	'''enrollment per term
+        Format: sales [crop] [weight] [price] 
         '''
 	message.respond(message.text)
 
+    keyword.prefix = ["voc"]
+    @keyword(r'(\d+) (\S+)')
+    @registered
+    def campaigns(self,message):
+	'''enrollment per term
+        Format: sales [crop] [weight] [price] 
+        '''
+	message.respond(message.text)

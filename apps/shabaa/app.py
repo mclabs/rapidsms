@@ -37,7 +37,7 @@ class App (rapidsms.app.App):
             func, captures = self.keyword.match(self, message.text)
         except TypeError:
             # didn't find a matching function
-            message.respond("Error. Your message could not be recognized by the system. Please check syntax and retry.")
+            message.respond("Error. Unknown or incorrectly formed command")
             return False
         try:
             handled = func(self, message, *captures)
@@ -55,13 +55,19 @@ class App (rapidsms.app.App):
     @keyword(r'(\w+) (M) (\d+) (F) (\d+) (\d{6,8}) (\w+)')
     @registered
     #format: activity code male/female number_of_attendees date location
-    def activities(self, message,code,male_gender,male_count,female_gender,female_count,activity_date,location):
+    def activities(self, message,code,male_gender,male_count,female_gender,female_count,activity_date,loc_code):
 	activity_code=code
 	self.debug(message.persistant_connection.reporter.id)
 	try:
 		activity_type=ActivityType.objects.get(code=activity_code)
 	except models.ObjectDoesNotExist:
 		message.respond("Sorry the activity code entered is wrong")
+		return True
+	#check if location code is valid
+	try:
+		Location=Location.objects.get(code=loc_code)
+	except models.ObjectDoesNotExist:
+		message.respond("Invalid location code")
 		return True
 	actv=Activity(activitytype=activity_type,
 	male_attendees=male_count,

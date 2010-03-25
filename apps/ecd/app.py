@@ -2,6 +2,7 @@ import rapidsms
 import re
 from rapidsms.parsers.keyworder import Keyworder
 from apps.reporters.models import *
+from apps.locations.models import Location
 from apps.ecd.models import *
 
 
@@ -51,22 +52,31 @@ class App (rapidsms.app.App):
         message.was_handled = bool(handled)
         return handled
 
-    keyword.prefix = ["amount","amt","amnt"]
-    @keyword(r'(\d+)')
+    keyword.prefix = ["grade","g","gd"]
+    @keyword(r'(\S+) (\S+) (\S+)')
     @registered
-    def amount_raised(self, message,event_count):
-	pattern=re.compile(r'(\w+)',re.IGNORECASE)
-	incoming=pattern.findall(message.text)
-	event_type=incoming[0]
-	self.debug("EVENT_TYPE" + event_type)
-	message.respond("%s count registered %s from %s" %(event_type,event_count,message.connection.identity))
+    def student_grade(self, message,student_code,overall_grade,term):
+	'''student grades per term
+        Format: sales [crop] [weight] [price] 
+        '''
+	message.respond(message.text)
        
 
-    keyword.prefix = ["enterprise","ent","entr"]
-    @keyword(r'(\w+) (\d+) (\w+)')
+    keyword.prefix = ["enrollment","e","en"]
+    @keyword(r'(\S+) (\d+) (\S+) (\d+)')
     @registered
-    def enrollment_per_center(self, message,industry,count,location):
-	#FORMAT: enterprise count jobs count
-	#match
-	message.respond(industry+" "+ count+" "+location)
+    def enrollment_per_term(self,message,male_code,male_count,female_code,female_count):
+	'''enrollment per term
+        Format: sales [crop] [weight] [price] 
+        '''
+	message.respond(message.text)
 
+
+    keyword.prefix = ["amount","a","amt"]
+    @keyword(r'(\S+) (\S+) (\S+)')
+    @registered
+    def amount_raised(self, message,amount,organisation,source):
+	'''amount raised
+        Format: sales [crop] [weight] [price] 
+        '''
+	message.respond(message.text)

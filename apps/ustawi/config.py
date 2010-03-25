@@ -1,2 +1,2 @@
-title = "Shabaa"
-tab_link = "/shabaa"
+title = "Ustawi"
+tab_link = "/ustawi"
