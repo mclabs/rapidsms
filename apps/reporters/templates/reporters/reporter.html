@@ -1,4 +1,6 @@
 {% extends "reporters/index.html" %}
+{% load region-tags %}
+
 {% block title %}{% if reporter %}Edit {{ reporter }}{% else %}Add a Reporter{% endif %}{% endblock %}
 
 {% block right %}
@@ -29,14 +31,14 @@
 				<input type="hidden" name="conn-id" value="{{ connection.pk }}" />
 				<select name="conn-backend">
 					<option></option>{% for backend in all_backends %}
-					<option value="{{ backend.pk }}"{% ifequal backend connection.backend %} selected="selected"{% endifequal %}>{{ backend.title }}</option>{% endfor %}
+					<option value="{{ backend.pk }}"{% ifequal backend connection.backend %} selected="selected"{% endifequal %}>{{ backend.slug }}</option>{% endfor %}
 				</select>
 				<input type="text" name="conn-identity" value="{{ connection.identity }}" />
 			</div>{% endfor %}{% else %}
 			<div>
 				<select name="conn-backend">
 					<option selected="selected"></option>{% for backend in all_backends %}
-					<option value="{{ backend.pk }}"{% if backend.selected %} selected="selected"{% endif %}>{{ backend.title }}</option>{% endfor %}
+					<option value="{{ backend.pk }}"{% if backend.selected %} selected="selected"{% endif %}>{{ backend.slug }}</option>{% endfor %}
 				</select>
 				<input type="text" name="conn-identity" />
 			</div>{% endif %}
@@ -62,7 +64,9 @@
 					Add a Group
 				</a>
 			</div>{% endif %}
-		</div>
+		</div>{% if reporter %}
+		
+		{% region "edit-reporter" %}{% endif %}
 		
 		<div class="submit">
 			<input type="submit" value="{% if reporter %}Save Changes{% else %}Add Reporter{% endif %}" />{% if reporter %}

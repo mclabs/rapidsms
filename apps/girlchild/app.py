@@ -30,26 +30,26 @@ class App (rapidsms.app.App):
 
     def parse (self, message):
         """Parse and annotate messages in the parse phase."""
-        pass
+        message.was_handled = False
 
     def handle (self, message):
         try:
             func, captures = self.keyword.match(self, message.text)
         except TypeError:
             # didn't find a matching function
-            message.respond("Error. Your message could not be recognized by the system. Please check syntax and retry.")
             return False
+            #message.respond("Error. Your message could not be recognized by the system. Please check syntax and retry.")
         try:
-            handled = func(self, message, *captures)
+            self.handled = func(self, message, *captures)
         except HandlerFailed, e:
             print e
-            handled = True
+            self.handled = True
         except Exception, e:
             print e
             message.respond("An error has occured %s" % e)
             raise
-        message.was_handled = bool(handled)
-        return handled
+        message.was_handled = bool(self.handled)
+        return self.shandled
 
     keyword.prefix = ["fgm"]
     @keyword(r'(\d+) (\S+)')
@@ -59,6 +59,9 @@ class App (rapidsms.app.App):
         Format: sales [crop] [weight] [price] 
         '''
 	message.respond(message.text)
+	return True
+    fgm_rescue.format="fgm"
+
        
 
     keyword.prefix = ["employed","emp"]
@@ -69,6 +72,8 @@ class App (rapidsms.app.App):
         Format: sales [crop] [weight] [price] 
         '''
 	message.respond(message.text)
+	return True
+    girls_employed.format="emp"
 
 
     keyword.prefix = ["voc"]
@@ -79,6 +84,8 @@ class App (rapidsms.app.App):
         Format: sales [crop] [weight] [price] 
         '''
 	message.respond(message.text)
+	return True
+    girls_vocational_training.format="voc"
 
     keyword.prefix = ["voc"]
     @keyword(r'(\d+) (\S+)')
@@ -88,3 +95,6 @@ class App (rapidsms.app.App):
         Format: sales [crop] [weight] [price] 
         '''
 	message.respond(message.text)
+	return True
+    
+    campaigns.format="campaigns"

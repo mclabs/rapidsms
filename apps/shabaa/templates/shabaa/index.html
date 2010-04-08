@@ -1,7 +1,88 @@
-{% extends base_template %}
+{% extends "layout-split-2.html" %}
+{% load reporters-tags %}
+{% load pagination-tags %}
+
 {% block title %}Shabaa{% endblock %}
-{% block content %}
-<h2>All Messages</h2> 
+
+
+{% block page_tabs %}
+<ul id="sub-tabs">
+	<li class="here">Map</li>
+</ul>
+{% endblock %}
+
+{% block left %}
+
+<div class="module">
+	<h2>Messages- Meetings</h2>
+	<table>
+		<thead>
+			<tr>
+				<th scope="col">Name</th>
+				<th scope="col">Message</th>
+				<th scope="col">Sent On</th>
+
+			</tr>
+		</thead>
+		<tbody>
+
+		</tbody>
+	</table>
+</div>
+
+<div class="module">
+	<h2>Messages-Enterprises Created</h2>
+	<table>
+		<thead>
+			<tr>
+				<th scope="col">Name</th>
+				<th scope="col">Message</th>
+				<th scope="col">Sent On</th>
+
+			</tr>
+		</thead>
+		<tbody>
+
+		</tbody>
+	</table>
+</div>
+{% endblock %}
+
+{% block right %}
+<div class="module">
+	<h2>All Incoming</h2>
+	<table>
+		<thead>
+			<tr>
+				<th scope="col">Name</th>
+				<th scope="col">Message</th>
+				<th scope="col">Sent On</th>
+			</tr>
+		</thead>
+		<tbody>
+
+		</tbody>
+	</table>
+</div>
+
+<div class="module">
+	<h2>All Outgoing</h2>
+	<table>
+		<thead>
+			<tr>
+				<th scope="col">Message</th>
+				<th scope="col">Sent On</th>
+				
+			</tr>
+		</thead>
+		<tbody>
+
+		</tbody>
+	</table>
+</div>
 
 {% endblock %}
+
+
+
 

@@ -65,7 +65,6 @@ div.clear-hack {
 /* the header is based roughly upon
  * unicef.org, with rapidsms colors */
 #header {
-	background: url("../images/header-bg.png") repeat-x;
 	padding-top: 23px;
 	padding-bottom: 33px;
 	position: relative;
@@ -89,7 +88,7 @@ div.clear-hack {
 	 * unicef blue stripe of header bg,
 	 * and display logo on the right */
 	#branding h1 {
-		background: url("../images/unicef.png") no-repeat 100% 50%;
+		background: url("../images/unicefs.png") no-repeat 100% 50%;
 		line-height: 65px;
 		padding-left: 10px;
 		color: #fff;
@@ -110,8 +109,33 @@ div.clear-hack {
 			height: 65px;
 			display: block;
 			text-indent: -9999px;
-			background: url("../images/rapidsms.png") no-repeat 0 50%;
+			background: url("../images/kcdf_logo.jpg") no-repeat 0 50%;
+			background-color: white;
 		}
+
+#sub-tabs ul {
+	margin-left: 0;
+	padding-left: 0;
+	display: inline;
+	float:right;
+	padding: 1em;
+	} 
+
+#sub-tabs ul li {
+	margin-left: 0;
+	margin-bottom: 0;
+	padding: 2px 15px 5px;
+	border: 1px solid #000;
+	list-style: none;
+	display: inline;
+	}
+	
+		
+#sub-tabs ul li.here {
+	border-bottom: 1px solid #ffc;
+	list-style: none;
+	display: inline;
+	}
 	
 	#tabs,
 	#page-tabs {
@@ -303,7 +327,8 @@ input.small {
 	border-top: 1px dotted #eee;
 	padding: 0.5em;
 	clear: both;
-	color: #ccc;
+	color: #fff;
+	background-color: #10AC6F;
 	
 	/* reserve space for at least two lines of
 	 * links @ LH=1.4 (for the copyright info) */

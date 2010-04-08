@@ -2,6 +2,28 @@ from django.db import models
 from apps.locations.models import Location
 from apps.reporters.models import Reporter
 
+class Permissions(models.Model):
+    '''This is a fake model that has nothing in it, because
+       django expects all app-level permissions to be in
+       a model'''
+    
+    class Meta:
+        # the permission required for this tab to display in the UI
+        permissions = (
+            ("can_view", "Can view"),
+        )
+
+class Industry(models.Model):
+	industry=models.CharField(max_length=100)
+	code=models.CharField(max_length=160)
+
+	def  __unicode__ (self):
+		return self.industry
+
+	class Meta:
+		verbose_name_plural="Industry"
+
+
 class ActivityType(models.Model):
 	activity_type=models.CharField(max_length=160)
 	code=models.CharField(max_length=160)
@@ -33,9 +55,8 @@ class Activity(models.Model):
 	class Meta:
 		verbose_name_plural="Activities"
 
-"""
 class Enterprise(models.Model):
-	employees=models.CharField(max_length=160)
+	jobs_created=models.CharField(max_length=160)
 	industry=models.ForeignKey(Industry)
 	reporter=models.ForeignKey(Reporter)
 	created_at=models.DateTimeField(auto_now_add=1)
@@ -43,6 +64,7 @@ class Enterprise(models.Model):
 	class Meta:
 		verbose_name_plural="Enterprises Created"
 
+"""
 
 class Industry(models.Model):
 	industry=models.CharField(max_length=160)

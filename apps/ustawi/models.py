@@ -2,6 +2,17 @@ from django.db import models
 from apps.reporters.models import Reporter
 from apps.locations.models import Location
 
+class Permissions(models.Model):
+    '''This is a fake model that has nothing in it, because
+       django expects all app-level permissions to be in
+       a model'''
+    
+    class Meta:
+        # the permission required for this tab to display in the UI
+        permissions = (
+            ("can_view", "Can view"),
+        )
+
 class Farmer(Reporter):
 	class Meta:
 		verbose_name= "Farmer"

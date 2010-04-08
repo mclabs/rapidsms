@@ -7,10 +7,10 @@ from rapidsms.webui.utils import render_to_response
 
 
 def index (req):
-	return render_to_response(req,'ustawi/index.html');
+	return render_to_response(req,'ecd/index.html');
 
 
 
 def map(req):
-	return render_to_response(req,'ustawi/map.html');
+	return render_to_response(req,'ecd/map.html');
 		

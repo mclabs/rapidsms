@@ -2,6 +2,7 @@ import rapidsms
 import re
 from rapidsms.parsers.keyworder import Keyworder
 from apps.reporters.models import *
+from apps.locations.models import Location
 from apps.shabaa.models import *
 
 
@@ -30,26 +31,26 @@ class App (rapidsms.app.App):
 
     def parse (self, message):
         """Parse and annotate messages in the parse phase."""
-        pass
+        message.was_handled = False
 
     def handle (self, message):
         try:
             func, captures = self.keyword.match(self, message.text)
         except TypeError:
             # didn't find a matching function
-            message.respond("Error. Unknown or incorrectly formed command")
-            return False
+	    
+	    message.respond("Sorry Unknown command: '%(msg)s...' Please try again"% {'msg': message.text[:20]})
+	    return False
         try:
-            handled = func(self, message, *captures)
+            self.handled = func(self, message, *captures)
         except HandlerFailed, e:
-            print e
-            handled = True
+            message.respond(e)
+            self.handled = True
         except Exception, e:
-            print e
             message.respond("An error has occured %s" % e)
             raise
-        message.was_handled = bool(handled)
-        return handled
+        message.was_handled = bool(self.handled)
+        return self.handled
 
     keyword.prefix = ["activity","actv","act"]
     @keyword(r'(\w+) (M) (\d+) (F) (\d+) (\d{6,8}) (\w+)')
@@ -75,14 +76,19 @@ class App (rapidsms.app.App):
 	reporter=message.persistant_connection.reporter)
 	#actv.save()
 	message.respond("Thank you for submitting your activity to KCDF")
+	return True
+    activities.format="actv [activity_code]"
+
        
 
     keyword.prefix = ["enterprise","ent","entr"]
-    @keyword(r'(\w+) (\d+) (\w+)')
+    @keyword(r'(\S+) (\S+) (\S+)')
     @registered
     #format: ent industry_code number_of_employees location
     def enterprise(self, message,industry_code,head_count,location):
 	message.respond(message.text)
+	return True
+    enterprise.format="ent [industry_code] [jobs_created] [location]"
 
     keyword.prefix = ["visitors","visit","v"]
     @keyword(r'(\w+) (\d+)')
@@ -97,4 +103,7 @@ class App (rapidsms.app.App):
 		return True
 
 	message.respond(message.text)
+	return True
+    visitors.format="v [type_of_visitor] [number_of_visitors]"
+
 

@@ -25,7 +25,8 @@ div.module:first-child {
  * <caption>, to keep things simple (they have
  * surprisingly kooky semantics) */
 h2, h3 {
-	background: #74d7e3 url(../images/h2-bg.png) repeat-x;
+	background: #D3702C
+ repeat-x;
 	border-bottom: 1px solid #4bd;
 	color: #fff;
 	font-weight: bold;
