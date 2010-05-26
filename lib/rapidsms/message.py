@@ -17,6 +17,7 @@ class StatusCodes:
     GENERIC_ERROR = "Generic error" # generic errors - e.g. a catch all responder
     
     
+
 class Message(object):
     def __init__(self, connection=None, text=None, person=None, date=None):
         if connection == None and person == None:

@@ -5,21 +5,28 @@ from apps.reporters.models import *
 from apps.locations.models import Location
 from apps.shabaa.models import *
 
+from rapidsms.message import Message
+from rapidsms.connection import Connection
+
 
 class HandlerFailed (Exception):
     pass
 
 
+
+
 def registered(func):
 
     def wrapper(self, message, *args):
-        if message.persistant_connection.reporter:
-            return func(self, message, *args)
-        else:
-            message.respond("Sorry, only registered users "
+	shabaa_reporter=ShabaaReporter.objects.filter(mobile_number=message.peer)
+        if shabaa_reporter:
+		return func(self, message, *args)
+	else:
+		message.respond("Sorry, only registered Shabaa users "
                                "can access this program.")
-            return True
+		return True
     return wrapper
+		
 
 class App (rapidsms.app.App):
     keyword=Keyworder()
@@ -52,13 +59,27 @@ class App (rapidsms.app.App):
         message.was_handled = bool(self.handled)
         return self.handled
 
+    keyword.prefix = ["shabaa"]
+    @keyword(r'(\S+)')
+    @registered
+    def subscribe (self,message,token):
+	self.debug("registering shabaa reporter")
+	shabaa_reporter=ShabaaReporter.objects.get(mobile_number=message.peer)
+	if shabaa_reporter:
+		per_con=message.persistant_connection
+		per_con.reporter=shabaa_reporter
+		per_con.save()
+	message.respond("Thank you for activating your Shabaa account")
+	return True
+    	
     keyword.prefix = ["activity","actv","act"]
-    @keyword(r'(\w+) (M) (\d+) (F) (\d+) (\d{6,8}) (\w+)')
+    @keyword(r'(\w+) (M) (\d+) (F) (\d+) (\d{6,8}) (\S+)')
     @registered
     #format: activity code male/female number_of_attendees date location
     def activities(self, message,code,male_gender,male_count,female_gender,female_count,activity_date,loc_code):
 	activity_code=code
-	self.debug(message.persistant_connection.reporter.id)
+	shabaa_reporter=ShabaaReporter.objects.get(mobile_number=message.peer)
+	#self.debug(message.persistant_connection.reporter.id)
 	try:
 		activity_type=ActivityType.objects.get(code=activity_code)
 	except models.ObjectDoesNotExist:
@@ -66,16 +87,18 @@ class App (rapidsms.app.App):
 		return True
 	#check if location code is valid
 	try:
-		Location=Location.objects.get(code=loc_code)
+		location=Location.objects.get(code=loc_code)
 	except models.ObjectDoesNotExist:
 		message.respond("Invalid location code")
 		return True
 	actv=Activity(activitytype=activity_type,
 	male_attendees=male_count,
 	female_attendees=female_count,
-	reporter=message.persistant_connection.reporter)
-	#actv.save()
-	message.respond("Thank you for submitting your activity to KCDF")
+	activity_date="2003-08-04",
+	reporter=shabaa_reporter,
+	location=location)
+	actv.save()
+	message.respond("Thank you for submitting your activity to Shabaa- KCDF")
 	return True
     activities.format="actv [activity_code]"
 
@@ -85,10 +108,27 @@ class App (rapidsms.app.App):
     @keyword(r'(\S+) (\S+) (\S+)')
     @registered
     #format: ent industry_code number_of_employees location
-    def enterprise(self, message,industry_code,head_count,location):
-	message.respond(message.text)
+    def enterprise(self, message,industry_code,head_count,loc_code):
+	shabaa_reporter=ShabaaReporter.objects.get(mobile_number=message.peer)
+	try:
+		industry=Industry.objects.get(code=industry_code)
+	except models.ObjectDoesNotExist:
+		message.respond("Sorry the industry code you have entered. Please enter correct code and resend SMS")
+		return True
+		#check if location code is valid
+	try:
+		location=Location.objects.get(code=loc_code)
+	except models.ObjectDoesNotExist:
+		message.respond("Invalid location code")
+		return True
+
+	enterprise=Enterprise(jobs_created=head_count,
+	industry=industry,
+	reporter=shabaa_reporter,
+	location=location)
+	enterprise.save()
+	message.respond("Thank you for submitting your enterprise to Shabaa- KCDF")
 	return True
-    enterprise.format="ent [industry_code] [jobs_created] [location]"
 
     keyword.prefix = ["visitors","visit","v"]
     @keyword(r'(\w+) (\d+)')
@@ -102,7 +142,7 @@ class App (rapidsms.app.App):
 		message.respond("Sorry the visitor code entered is wrong")
 		return True
 
-	message.respond(message.text)
+	message.respond("Thank you for submitting your activity to Shabaa- KCDF")
 	return True
     visitors.format="v [type_of_visitor] [number_of_visitors]"
 

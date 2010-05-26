@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 
-import os, log
+import os, log, sys, traceback
 from ConfigParser import SafeConfigParser
 import logging
 
@@ -103,7 +103,9 @@ class Config (object):
                 return module
         
         except ImportError, e:
-            logging.error("App import error: " + str(e))            
+            info = sys.exc_info()
+            logging.error("App import error from %s: %s\n%s" % (class_tmpl, str(e), traceback.print_tb(info[2])))
+                
             pass
 
 
@@ -163,7 +165,7 @@ class Config (object):
         return { "apps":     [self.app_section(n) for n in app_names],
                  "backends": [self.backend_section(n) for n in backend_names] }
 
-
+    
     def parse_log_section (self, raw_section):
         output = {"level": log.LOG_LEVEL, "file": log.LOG_FILE}
         output.update(raw_section)
@@ -188,9 +190,21 @@ class Config (object):
         # add a section for the locale paths
         if "locale_paths" in raw_section:
             output["locale_paths"] = to_list(raw_section["locale_paths"], ",")
-
+        
         return output
-
+    
+    def parse_customdjango_section(self, raw_section):
+        '''Process custom django, if present.  Currently just processes
+           anything it finds as a list.  This is currently used for 
+           custom additional middlewares, context processors, and 
+           authentication methods.'''
+        # this is only half of the puzzle.  See settings.py for some hard-coded
+        # magic that processes what is set here.  
+        parsed = {}
+        for key, value in raw_section.items():
+            parsed[key] = to_list(value)
+        return parsed
+    
     def __getitem__ (self, key):
         return self.data[key]
         

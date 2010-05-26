@@ -13,19 +13,26 @@ class Permissions(models.Model):
             ("can_view", "Can view"),
         )
 
-class Farmer(Reporter):
+class Coordinator(Reporter):
+	organisation=models.CharField(max_length=160,help_text="Organisation the coordinator represents")
+	mobile_number=models.CharField(max_length=20)
 	class Meta:
-		verbose_name= "Farmer"
+		verbose_name= "Coordinator"
 
 	def __unicode__ (self):
-		return self.firstname + " " + self.lastname
+		return "%s %s"%(self.firstname,self.lastname)
+
+class Farmer(models.Model):
+	firstname=models.CharField(max_length=100)
+	
 
 
 class Farm(models.Model):
 	farmname=models.CharField(max_length=160)
 	description=models.TextField(help_text="Brief Description of Farm")
 	location=models.ForeignKey(Location)
-	farmer=models.ForeignKey(Farmer)
+	code=models.CharField(max_length=10,unique=True,help_text="Unique code to identify each farm")
+	farmer=models.ForeignKey(Farmer,null=True,blank=True)
 
 	class Meta:
 		verbose_name= "Farm"
@@ -36,37 +43,29 @@ class Farm(models.Model):
 
 class Crop(models.Model):
 	crop=models.CharField(max_length=100, help_text="Name of crop")
-	code=models.CharField(max_length=30, unique=True)
+	code=models.CharField(max_length=30, unique=True,help_text="Unique code to identify each crop e.g. MZ for Maize")
 
 	class Meta:
 		verbose_name="Farm Crop"
 
 	def __unicode__ (self):
 		return self.crop
-		
-'''
+
 class CropSales(models.Model):
-	reporter=models.ForeignKey(Reporter)
+	farm=models.ForeignKey(Farm)
+	crop=models.ForeignKey(Crop)
+	weight=models.CharField(max_length=30)
+	price=models.CharField(max_length=30)
+	coordinator=models.ForeignKey(Coordinator)
 	class Meta:
-		verbose_name="Crop Sales"
-		
+		verbose_name= "Cop Sales"
 
-class FarmersCount(models.Model):
-	male_farmers=models.CharField(max_length=30,help_text="Number of male farmers")
-	female_farmers=models.CharField(max_length=30,help_text="Number of female farmers")
-	reporter=models.ForeignKey(Reporter)
+
+class CropHarvests(models.Model):
+	farm=models.ForeignKey(Farm)
+	crop=models.ForeignKey(Crop)
+	weight=models.CharField(max_length=30)
+	coordinator=models.ForeignKey(Coordinator)
+
 	class Meta:
-		verbose_name="Number of Farmers by Gender"
-
-
-class Visitor(models.Model):
-	visitor_count=models.CharField(max_length=20,help_text="Number of visitors to each farm")
-	reporter=models.ForeignKey(Reporter)
-	class Meta:
-		verbose_name="Farm Visitors"
-
-'''
-
-	
-		
-
+		verbose_name= "Crop Harvests"

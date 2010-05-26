@@ -6,43 +6,63 @@
 
 
 {% block page_tabs %}
-<ul id="sub-tabs">
-	<li class="here">Map</li>
+<ul id="page-tabs">
+    <li class="page"><a href="map">Map</a></li>
+	    <li class="page"><a href="graphs">Graphs</a></li>
+
 </ul>
 {% endblock %}
 
 {% block left %}
 
 <div class="module">
-	<h2>Messages- Meetings</h2>
+	<h2>Activities</h2>
 	<table>
 		<thead>
 			<tr>
-				<th scope="col">Name</th>
-				<th scope="col">Message</th>
+				<th scope="col">Reporter</th>
+				<th scope="col">Type</th>
+				<th scope="col">Male #</th>
+				<th scope="col">Female #</th>
+				<th scope="col">Date</th>
 				<th scope="col">Sent On</th>
-
 			</tr>
 		</thead>
 		<tbody>
-
+		{% for activity in activities %}
+		<tr>
+		<td>{{activity.reporter.first_name}} {{activity.reporter.last_name}}</td>
+		<td>{{activity.activitytype.activity_type}} </td>
+		<td>{{activity.male_attendees}}</td>
+		<td>{{activity.female_attendees}}</td>
+		<td>{{activity.activity_date|date:"D d M Y"}}</td>
+		<td>{{activity.created_at|date:"D d M Y"}}</td>
+		</tr>
+		{%endfor%}
 		</tbody>
 	</table>
 </div>
 
 <div class="module">
-	<h2>Messages-Enterprises Created</h2>
+	<h2>Enterprises Created</h2>
 	<table>
 		<thead>
 			<tr>
-				<th scope="col">Name</th>
-				<th scope="col">Message</th>
+				<th scope="col">Reporter</th>
+				<th scope="col">Type</th>
+				<th scope="col">Number of Jobs</th>
 				<th scope="col">Sent On</th>
-
 			</tr>
 		</thead>
 		<tbody>
-
+		{% for e in enterprises %}
+		<tr>
+		<td>{{e.reporter.first_name}} {{e.reporter.last_name}}</td>
+		<td>{{e.industry}} </td>
+		<td>{{e.jobs_created}}</td>
+		<td>{{e.created_at|date:"D d M Y"}}</td>
+		</tr>
+		{%endfor%}
 		</tbody>
 	</table>
 </div>
@@ -50,39 +70,60 @@
 
 {% block right %}
 <div class="module">
-	<h2>All Incoming</h2>
+	<h2>Visitors</h2>
 	<table>
 		<thead>
 			<tr>
-				<th scope="col">Name</th>
-				<th scope="col">Message</th>
+				<th scope="col">Reporter</th>
+				<th scope="col">Type</th>
+				<th scope="col">Number of Visitors</th>
+				<th scope="col">Date</th>
 				<th scope="col">Sent On</th>
 			</tr>
 		</thead>
 		<tbody>
-
+		{% for activity in activities %}
+		<tr>
+		<td>{{activity.reporter.first_name}} {{activity.reporter.last_name}}</td>
+		<td>{{activity.activitytype.activity_type}} </td>
+		<td>{{activity.male_attendees}}</td>
+		<td>{{activity.activity_date}}</td>
+		<td>{{activity.created_at}}</td>
+		</tr>
+		{%endfor%}
 		</tbody>
 	</table>
 </div>
 
 <div class="module">
-	<h2>All Outgoing</h2>
+	<h2>Partnerships</h2>
 	<table>
 		<thead>
 			<tr>
-				<th scope="col">Message</th>
+				<th scope="col">Reporter</th>
+				<th scope="col">Type</th>
+				<th scope="col">Male #</th>
+				<th scope="col">Female #</th>
+				<th scope="col">Date</th>
 				<th scope="col">Sent On</th>
-				
 			</tr>
 		</thead>
 		<tbody>
-
+		{% for activity in activities %}
+		<tr>
+		<td>{{activity.reporter.first_name}} {{activity.reporter.last_name}}</td>
+		<td>{{activity.activitytype.activity_type}} </td>
+		<td>{{activity.male_attendees}}</td>
+		<td>{{activity.female_attendees}}</td>
+		<td>{{activity.activity_date}}</td>
+		<td>{{activity.created_at}}</td>
+		</tr>
+		{%endfor%}
 		</tbody>
 	</table>
 </div>
 
+
+
 {% endblock %}
-
-
-
 

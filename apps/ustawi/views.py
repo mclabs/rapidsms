@@ -15,4 +15,12 @@ def index (req):
 @permission_required('ustawi.can_view')
 def map(req):
 	return render_to_response(req,'ustawi/map.html');
-		
+
+@permission_required('ustawi.can_view')
+def reports(req):
+	return render_to_response(req,'ustawi/reports.html');
+
+
+@permission_required('ustawi.can_view')
+def graphs(req):
+	return render_to_response(req,'ustawi/graphs.html');

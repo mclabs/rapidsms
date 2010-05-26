@@ -1,6 +1,6 @@
 from django.db import models
 from apps.locations.models import Location
-from apps.reporters.models import Reporter
+from apps.reporters.models import Reporter,PersistantConnection, Location 
 
 class Permissions(models.Model):
     '''This is a fake model that has nothing in it, because
@@ -12,6 +12,33 @@ class Permissions(models.Model):
         permissions = (
             ("can_view", "Can view"),
         )
+
+
+	
+	
+class Organisation(models.Model):
+	organisation=models.CharField(max_length=160)
+
+	def __unicode__ (self):
+		return self.organisation
+
+
+class ShabaaReporter(Reporter):
+	GENDER = (
+        ('M', 'Male'),
+        ('F', 'Female'),
+	)
+	gender=models.CharField(max_length=1,choices=GENDER)
+	email=models.CharField(max_length=100,blank=True)
+	organisation=models.ForeignKey(Organisation)
+	mobile_number=models.CharField(max_length=100,blank=True,help_text="Number format is +2547XXXXXXXX")
+
+	def __unicode__ (self):
+		return self.alias
+		
+
+		
+	
 
 class Industry(models.Model):
 	industry=models.CharField(max_length=100)
@@ -39,13 +66,14 @@ class Activity(models.Model):
 	male_attendees=models.CharField(max_length=160)
 	female_attendees=models.CharField(max_length=160)
 	created_at=models.DateTimeField(auto_now_add=1)
-	activity_date=models.DateTimeField()
+	activity_date=models.DateField()
 	activitytype=models.ForeignKey(ActivityType)
-	reporter=models.ForeignKey(Reporter)
+	reporter=models.ForeignKey(ShabaaReporter)
 	alias=models.SlugField()
+	location=models.ForeignKey(Location)
 
 	def save(self):
-		self.alias=slugify(self.activitytype.activity_type+reporter.alias)
+		self.alias="%s-Enterprise-from-%s"%(self.activitytype, self.reporter)
 		super(Activity,self).save()
 		
 
@@ -58,25 +86,19 @@ class Activity(models.Model):
 class Enterprise(models.Model):
 	jobs_created=models.CharField(max_length=160)
 	industry=models.ForeignKey(Industry)
-	reporter=models.ForeignKey(Reporter)
-	created_at=models.DateTimeField(auto_now_add=1)
+	reporter=models.ForeignKey(ShabaaReporter)
+	location=models.ForeignKey(Location)
+	created_at=models.DateTimeField(auto_now_add=True)
 
 	class Meta:
 		verbose_name_plural="Enterprises Created"
 
-"""
-
-class Industry(models.Model):
-	industry=models.CharField(max_length=160)
-	code=models.CharField(max_length=160)
-	slug=models.SlugField()
-
 	def  __unicode__ (self):
-		return self.industry
+		return "%s Enterprise from %s"%(self.industry, self.reporter)
 
 
-class VisitorType(models.Model)
-	visit_type=models.CharField(max_length=160)
+class VisitorType(models.Model):
+	visitor_type=models.CharField(max_length=160)
 	code=models.CharField(max_length=160)
 
 	def  __unicode__ (self):
@@ -84,12 +106,13 @@ class VisitorType(models.Model)
 
 	class Meta:
 		verbose_name_plural="Visitor Type"
+"""
 
 
 class Visitor(models.Model):
 	visitor_count=models.CharField(max_length=160)
 	visitortype=models.ForeignKey(VisitorType)
-	reporter=models.ForeignKey(Reporter)
+	reporter=models.ForeignKey(ShabaaReporter)
 	created_at=models.DateTimeField(auto_now_add=1)
 
 	def  __unicode__ (self):

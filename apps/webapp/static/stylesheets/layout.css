@@ -80,7 +80,9 @@ div.clear-hack {
         }
 
         #auth p a{
-                color: white;
+                color: red;
+				font-weight: bold;
+
         }
 
 

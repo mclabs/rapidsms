@@ -8,6 +8,14 @@ from django.db.backends.util import typecast_timestamp
 from reporters.models import PersistantConnection, PersistantBackend, Reporter
 from datetime import datetime
 
+
+class Permissions(models.Model):
+	class Meta:
+		permissions = (
+			("can_view", "Can view"),
+		)
+		
+	
 class IncomingMessage(models.Model):
     reporter   = models.ForeignKey(Reporter, null=True, blank=True)
     connection = models.ForeignKey(PersistantConnection, null=True, blank=True)

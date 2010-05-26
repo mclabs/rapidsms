@@ -8,22 +8,11 @@ import i18n
 
 # the Manager class is a bin for various RapidSMS specific management methods
 class Manager (object):
-
-    def testroute(self, conf, *args):
-        """ Uses Django's autoreload functionality to automatically restart the 
-        routing server when code is changed.  """
-        from django.utils import autoreload
-
-        def run():
-            self.route(conf, args)
-
-        # run our route command using Django's autoreload
-        autoreload.main(run)
-
     def route (self, conf, *args):
         router = Router()
         router.set_logger(conf["log"]["level"], conf["log"]["file"])
         router.info("RapidSMS Server started up")
+        import_i18n_sms_settings(conf)
         
         # add each application from conf
         for app_conf in conf["rapidsms"]["apps"]:
@@ -100,24 +89,24 @@ def start (args):
     # access it globally, including any subprocesses
     # spawned by django
     os.environ["RAPIDSMS_INI"] = ini
+    os.environ["DJANGO_SETTINGS_MODULE"] = "rapidsms.webui.settings"
 
     # read the config, which is shared
     # between the back and frontend
     conf = Config(ini)
-
+    
     # if we found a config ini, try to configure Django
     if conf.sources:
-
-        # import the webui settings, which builds the django
-        # config from rapidsms.config, in a round-about way.
-        # can't do it until env[RAPIDSMS_INI] is defined
-        from rapidsms.webui import settings
+        # This builds the django config from rapidsms.config, in a 
+        # round-about way.
+        # Can't do it until env[RAPIDSMS_INI] is defined
+        from rapidsms.webui import settings 
+        
         import_local_settings(settings, ini)
-        import_i18n_sms_settings(conf)
 
         # whatever we're doing, we'll need to call
         # django's setup_environ, to configure the ORM
-        os.environ["DJANGO_SETTINGS_MODULE"] = "rapidsms.webui.settings"
+        
         from django.core.management import setup_environ, execute_manager
         setup_environ(settings)
     else:
@@ -126,7 +115,7 @@ def start (args):
     # if one or more arguments were passed, we're
     # starting up django -- copied from manage.py
     if len(args) < 2:
-        print "Commands: route, testroute, runserver, startproject <name>, startapp <name>"
+        print "Commands: route, startproject <name>, startapp <name>"
         sys.exit(1)
 
     if hasattr(Manager, args[1]):

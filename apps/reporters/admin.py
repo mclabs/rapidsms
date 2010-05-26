@@ -25,9 +25,9 @@ def reportergroup_members(self):
     #return ', '.join(['<a href="%s">%s</a>' % (reverse('admin:reporters_reporter_change', args=(x.id,)), x.alias) for x in self.reporters.all().order_by('id')])
     
     #1.0.x admin compatability
-    return '<br> '.join(['<a href="%s">%s</a>' % (reverse( 'django-admin', args=["%s/%s/%s/" % ('reporters', 'reporter', x.id)]), x.alias) for x in self.reporters.all().order_by('id')])
+    #return '<br> '.join(['<a href="%s">%s</a>' % (reverse( 'django-admin', args=["%s/%s/%s/" % ('reporters', 'reporter', x.id)]), x.alias) for x in self.reporters.all().order_by('id')])
     
-    #return '<br> '.join([x.alias for x in self.reporters.all().order_by('alias')])
+    return '<br> '.join([x.alias for x in self.reporters.all().order_by('alias')])
 reportergroup_members.allow_tags = True
     
 class ReporterGroupAdmin(admin.ModelAdmin):

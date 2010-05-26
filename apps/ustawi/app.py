@@ -2,7 +2,7 @@ import rapidsms
 import re
 from rapidsms.parsers.keyworder import Keyworder
 from apps.reporters.models import *
-from apps.ustawi.models import *
+from apps.ustawi.models import Coordinator,CropSales,CropHarvests
 
 
 class HandlerFailed (Exception):
@@ -12,12 +12,13 @@ class HandlerFailed (Exception):
 def registered(func):
 
     def wrapper(self, message, *args):
-        if message.persistant_connection.reporter:
-            return func(self, message, *args)
-        else:
-            message.respond("Sorry, only registered users "
+	ustawi_reporter=Coordinator.objects.filter(mobile_number=message.peer)
+        if ustawi_reporter:
+		return func(self, message, *args)
+	else:
+		message.respond("Sorry, only registered Ustawi users "
                                "can access this program.")
-            return True
+		return True
     return wrapper
 
 class App (rapidsms.app.App):
@@ -38,19 +39,7 @@ class App (rapidsms.app.App):
         except TypeError:
 	    # didn't find a matching function
             # make sure we tell them that we got a problem
-            command_list = [method for method in dir(self) \
-                            if hasattr(getattr(self, method), 'format')]
-            birth_input = message.text.lower()
-            for command in command_list:
-                format = getattr(self, command).format
-                try:
-                    first_word = (format.split(' '))[0]
-                    if birth_input.find(first_word) > -1:
-                        message.respond(format)
-                        return True
-                except Exception, e:
-                    pass
-            return False        
+             return False        
 	try:
             self.handled = func(self, message, *captures)
         except HandlerFailed, e:
@@ -63,10 +52,25 @@ class App (rapidsms.app.App):
         message.was_handled = bool(self.handled)
         return self.handled
 
-    keyword.prefix = ["sales","s","sl"]
-    @keyword(r'(\S+) (\S+) (\S+)')
+    keyword.prefix = ["ustawi"]
+    @keyword(r'(\S+)')
     @registered
-    def crop_sales(self, message,crop,weight,price):
+    def subscribe (self,message,token):
+	self.debug("registering ustawi reporter")
+	ustawi_reporter=Coordinator.objects.get(mobile_number=message.peer)
+	if ustawi_reporter:
+		per_con=message.persistant_connection
+		per_con.reporter=ustawi_reporter
+		per_con.save()
+	message.respond("Thank you for activating your Ustawi account")
+	return True
+
+    
+    
+    keyword.prefix = ["sales","s","sl"]
+    @keyword(r'(\S+) (\S+) (\S+) (\S+)')
+    @registered
+    def crop_sales(self, message,farm,crop,weight,price):
 	'''crop sales
         Format: sales [crop] [weight] [price] 
         '''
@@ -77,9 +81,18 @@ class App (rapidsms.app.App):
 
 
     keyword.prefix = ["harvest","h","yield"]
-    @keyword(r'(\S+) (\S+)')
+    @keyword(r'(\S+) (\S+) (\S+)')
     @registered
-    def crop_harvests(self, message,crop,amount):
+    def crop_harvests(self, message,farm,crop,amount):
+	message.respond(message.text)
+	return True
+    crop_harvests.format="h [crop_code] [amount]"
+
+
+    keyword.prefix = ["storage","store"]
+    @keyword(r'(\S+) (\S+) (\S+)')
+    @registered
+    def storage(self, message,farm,crop,amount):
 	message.respond(message.text)
 	return True
     crop_harvests.format="h [crop_code] [amount]"

@@ -3,6 +3,12 @@ from apps.reporters.models import Reporter
 from apps.locations.models import Location
 
 
+class Permissions(models.Model):
+	class Meta:
+		 permissions = (
+            ("can_view", "Can view"),
+        )
+
 class Center(models.Model):
 	name=models.CharField(max_length=160)
 	location=models.ForeignKey(Location)
@@ -14,6 +20,21 @@ class Center(models.Model):
 	class Meta:
 		verbose_name="ECD Center"
 
+
+
+class EcdReporter(Reporter):
+	GENDER = (
+        ('M', 'Male'),
+        ('F', 'Female'),
+	)
+	email=models.CharField(max_length=100,null=True, blank=True)
+	center=models.ForeignKey(Center)
+	mobile_number=models.CharField(max_length=100)
+
+	def __unicode__ (self):
+		return self.alias
+
+	
 
 class Child(models.Model):
 	firstname=models.CharField(max_length=160)

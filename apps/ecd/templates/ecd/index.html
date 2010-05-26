@@ -1,7 +1,65 @@
-{% extends base_template %}
+{% extends "layout-split-2.html" %}
+{% load reporters-tags %}
+{% load pagination-tags %}
+
 {% block title %}ECD{% endblock %}
-{% block content %}
-<h2>All Messages</h2> 
+
+
+{% block page_tabs %}
+<ul id="page-tabs">
+    <li class="page"><a href="map">Map</a></li>
+</ul>
+{% endblock %}
+
+{% block left %}
+
+<div class="module">
+	<h2>Enrollment Per Center</h2>
+	<table>
+		<thead>
+				<th scope="col">Reporter</th>
+				<th scope="col">Girls</th>
+				<th scope="col">Boys</th>
+				<th scope="col">Date</th>
+				<th scope="col">Sent On</th>
+
+		</thead>
+	</table>
+</div>
+
+<div class="module">
+	<h2>Sales</h2>
+</div>
+{% endblock %}
+
+{% block right %}
+<div class="module">
+	<h2>Grades</h2>
+	<table>
+		<thead>
+				<th scope="col">Reporter</th>
+				<th scope="col">Child</th>
+				<th scope="col">Overall Grade</th>
+				<th scope="col">Term</th>
+				<th scope="col">Sent On</th>
+
+		</thead>
+	</table>
+</div>
+
+<div class="module">
+	<h2>Funds Raised</h2>
+	<table>
+		<thead>
+				<th scope="col">Reporter</th>
+				<th scope="col">Center</th>
+				<th scope="col">Amount</th>
+				<th scope="col">Date</th>
+				<th scope="col">Sent On</th>
+
+		</thead>
+	</table>
+</div>
 
 {% endblock %}
 
