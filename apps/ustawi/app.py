@@ -2,7 +2,7 @@ import rapidsms
 import re
 from rapidsms.parsers.keyworder import Keyworder
 from apps.reporters.models import *
-from apps.ustawi.models import Coordinator,CropSales,CropHarvests
+from apps.ustawi.models import *
 
 
 class HandlerFailed (Exception):
@@ -33,21 +33,44 @@ class App (rapidsms.app.App):
         """Parse and annotate messages in the parse phase."""
         message.was_handled = False
 
-    def handle (self, message):
+
+    def handle(self, message):
+        ''' Function selector
+
+        Matchs functions with keyword using Keyworder
+        Replies formatting advices on error
+        Return False on error and if no function matched '''
         try:
             func, captures = self.keyword.match(self, message.text)
         except TypeError:
-	    # didn't find a matching function
+            # didn't find a matching function
             # make sure we tell them that we got a problem
-             return False        
-	try:
+            command_list = [method for method in dir(self) \
+                            if hasattr(getattr(self, method), "format")]
+            input_text = message.text.lower()
+            for command in command_list:
+                format = getattr(self, command).format
+                try:
+                    first_word = (format.split(" "))[0]
+                    if input_text.find(first_word) > -1:
+                        message.respond("Unknown ustawi SMS format please try %s"%format)
+                        return True
+                except:
+                    #message.respond("Sorry Unknown command: '%(msg)s...' Please try again"% {'msg': message.text[:20]})
+		    #return True
+                    pass
+            return False
+        try:
             self.handled = func(self, message, *captures)
         except HandlerFailed, e:
-            message.respond(e)
+            message.respond(e.message)
+
             self.handled = True
         except Exception, e:
-            print e
-            message.respond("An error has occured %s" % e)
+            # TODO: log this exception
+            # FIXME: also, put the contact number in the config
+            message.respond("An error occurred. Please call")
+
             raise
         message.was_handled = bool(self.handled)
         return self.handled
@@ -64,6 +87,7 @@ class App (rapidsms.app.App):
 		per_con.save()
 	message.respond("Thank you for activating your Ustawi account")
 	return True
+    subscribe.format="ustawi join"
 
     
     
@@ -77,7 +101,7 @@ class App (rapidsms.app.App):
 	
 	message.respond(message.text)
 	return True
-    crop_sales.format=" sales [crop_code] [weight] [price]"
+    crop_sales.format="sales [farm] [crop] [weight] [price]"
 
 
     keyword.prefix = ["harvest","h","yield"]
@@ -86,16 +110,16 @@ class App (rapidsms.app.App):
     def crop_harvests(self, message,farm,crop,amount):
 	message.respond(message.text)
 	return True
-    crop_harvests.format="h [crop_code] [amount]"
+    crop_harvests.format="harvest [farm] [crop] [weight] [price]"
 
 
-    keyword.prefix = ["storage","store"]
+    keyword.prefix = ["store"]
     @keyword(r'(\S+) (\S+) (\S+)')
     @registered
     def storage(self, message,farm,crop,amount):
 	message.respond(message.text)
 	return True
-    crop_harvests.format="h [crop_code] [amount]"
+    storage.format="store [farm] [crop] [weight] [price]"
 
 
     keyword.prefix = ["fc"]
@@ -107,10 +131,10 @@ class App (rapidsms.app.App):
         '''
 	message.respond(message.text)
 	return True
-    farmers_count.format="fc [head_count] [location]"
+    farmers_count.format="fc [farm] [crop] [weight] [price]"
 
     
-    keyword.prefix = ["visitors","visit","v"]
+    keyword.prefix = ["v"]
     @keyword(r'(\d+) (\w+)')
     @registered
     def farm_visitors(self, message,head_count,location):
@@ -118,5 +142,5 @@ class App (rapidsms.app.App):
         Format: visitors [head_count] 
         '''
 	message.respond(message.text)
-    farm_visitors.format="visitors [blah]"
-
+	return True
+    farm_visitors.format="v [farm] [crop] [weight] [price]"

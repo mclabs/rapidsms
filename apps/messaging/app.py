@@ -30,7 +30,7 @@ class App (rapidsms.app.App):
                 **msg.persistance_dict)
 
             self.info("Message %d captured" % (msg.pk))
-
+            msg.respond("Sorry, we didn't understand that message.", StatusCodes.GENERIC_ERROR)		
             # short-circuit, since this message is dealt
             # with now (even if it shouldn't have been)
             return True

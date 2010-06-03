@@ -21,3 +21,5 @@ admin.site.register(Industry)
 admin.site.register(Organisation)
 admin.site.register(Activity,ActivityAdmin)
 admin.site.register(ActivityType)
+admin.site.register(VisitorType)
+

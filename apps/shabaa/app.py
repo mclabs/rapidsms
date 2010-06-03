@@ -40,21 +40,43 @@ class App (rapidsms.app.App):
         """Parse and annotate messages in the parse phase."""
         message.was_handled = False
 
-    def handle (self, message):
+    def handle(self, message):
+        ''' Function selector
+
+        Matchs functions with keyword using Keyworder
+        Replies formatting advices on error
+        Return False on error and if no function matched '''
         try:
             func, captures = self.keyword.match(self, message.text)
         except TypeError:
             # didn't find a matching function
-	    
-	    message.respond("Sorry Unknown command: '%(msg)s...' Please try again"% {'msg': message.text[:20]})
-	    return False
+            # make sure we tell them that we got a problem
+            command_list = [method for method in dir(self) \
+                            if hasattr(getattr(self, method), "format")]
+            input_text = message.text.lower()
+            for command in command_list:
+                format = getattr(self, command).format
+                try:
+                    first_word = (format.split(" "))[0]
+                    if input_text.find(first_word) > -1:
+                        message.respond("Unknown shabaa SMS format please try %s"%format)
+                        return True
+                except:
+                     #message.respond("Sorry Unknown command: '%(msg)s...' Please try again"% {'msg': message.text[:20]})
+		     #return True
+		     pass
+            return False
         try:
             self.handled = func(self, message, *captures)
         except HandlerFailed, e:
-            message.respond(e)
+            message.respond(e.message)
+
             self.handled = True
         except Exception, e:
-            message.respond("An error has occured %s" % e)
+            # TODO: log this exception
+            # FIXME: also, put the contact number in the config
+            message.respond("An error occurred. Please call")
+
             raise
         message.was_handled = bool(self.handled)
         return self.handled
@@ -71,8 +93,10 @@ class App (rapidsms.app.App):
 		per_con.save()
 	message.respond("Thank you for activating your Shabaa account")
 	return True
+    subscribe.format="shabaa join"
+
     	
-    keyword.prefix = ["activity","actv","act"]
+    keyword.prefix = ["act"]
     @keyword(r'(\w+) (M) (\d+) (F) (\d+) (\d{6,8}) (\S+)')
     @registered
     #format: activity code male/female number_of_attendees date location
@@ -100,7 +124,7 @@ class App (rapidsms.app.App):
 	actv.save()
 	message.respond("Thank you for submitting your activity to Shabaa- KCDF")
 	return True
-    activities.format="actv [activity_code]"
+    activities.format="actv [activity_code] M [number_of_people] F [number_of_people] [date-YYYYMMDD] [Location_code]"
 
        
 
@@ -129,12 +153,13 @@ class App (rapidsms.app.App):
 	enterprise.save()
 	message.respond("Thank you for submitting your enterprise to Shabaa- KCDF")
 	return True
+    enterprise.format="ent [industry_code] [head_count] [Location_code]"
 
-    keyword.prefix = ["visitors","visit","v"]
+    keyword.prefix = ["visit","v"]
     @keyword(r'(\w+) (\d+)')
     @registered
     #format: v visitor_type number_of_visitors date-mmYYYY'''
-    def visitors(self, message,code,head_count):
+    def visitor_count(self, message,code,head_count):
 	visitor_code=code
 	try:
 		visitor_type_type=VisitorType.objects.get(code=visitor_code)
@@ -144,6 +169,6 @@ class App (rapidsms.app.App):
 
 	message.respond("Thank you for submitting your activity to Shabaa- KCDF")
 	return True
-    visitors.format="v [type_of_visitor] [number_of_visitors]"
+    visitor_count.format="v [type_of_visitor] [number_of_visitors]"
 
 

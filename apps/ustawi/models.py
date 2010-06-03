@@ -20,7 +20,7 @@ class Coordinator(Reporter):
 		verbose_name= "Coordinator"
 
 	def __unicode__ (self):
-		return "%s %s"%(self.firstname,self.lastname)
+		return "%s %s"%(self.first_name,self.last_name)
 
 class Farmer(models.Model):
 	firstname=models.CharField(max_length=100)

@@ -33,49 +33,48 @@ class App (rapidsms.app.App):
         """Parse and annotate messages in the parse phase."""
         message.was_handled = False
 
-    def handle (self, message):
+    def handle(self, message):
+        ''' Function selector
+
+        Matchs functions with keyword using Keyworder
+        Replies formatting advices on error
+        Return False on error and if no function matched '''
         try:
             func, captures = self.keyword.match(self, message.text)
         except TypeError:
-           
-	    return False 
-	try:
+            # didn't find a matching function
+            # make sure we tell them that we got a problem
+            command_list = [method for method in dir(self) \
+                            if hasattr(getattr(self, method), "format")]
+            input_text = message.text.lower()
+            for command in command_list:
+                format = getattr(self, command).format
+                try:
+                    first_word = (format.split(" "))[0]
+                    if input_text.find(first_word) > -1:
+                        message.respond("Unknown ECD SMS format please try %s"%format)
+                        return True
+                except:
+                     #message.respond("Sorry Unknown command: '%(msg)s...' Please try again"% {'msg': message.text[:20]})
+		     #return True
+		     pass
+            return False
+        try:
             self.handled = func(self, message, *captures)
         except HandlerFailed, e:
-            message.respond(e)
+            message.respond(e.message)
+
             self.handled = True
         except Exception, e:
-            print e
-            message.respond("An error has occured %s" % e)
+            # TODO: log this exception
+            # FIXME: also, put the contact number in the config
+            message.respond("An error occurred. Please call")
+
             raise
         message.was_handled = bool(self.handled)
         return self.handled
 
-    keyword.prefix = ["grade","g","gd"]
-    @keyword(r'(\S+) (\S+) (\S+)')
-    @registered
-    def child_grade(self, message,student_code,overall_grade,term):
-	'''student grades per term
-        Format: sales [crop] [weight] [price] 
-        '''
-	message.respond(message.text)
-	return True
-    child_grade.format="grade [student_code] [grade] [term]"
-       
-
-    keyword.prefix = ["enrollment","e","en"]
-    @keyword(r'(\S+) (\d+) (\S+) (\d+)')
-    @registered
-    def enrollment_per_center(self,message,male_code,male_count,female_code,female_count):
-	'''enrollment per term
-        Format: sales [crop] [weight] [price] 
-        '''
-	message.respond(message.text)
-	return True
-    enrollment_per_center.format="en [male_code] [male_count] [female_code] [female_count]"
-
-
-    keyword.prefix = ["amount","a","amt"]
+    keyword.prefix = ["amount"]
     @keyword(r'(\S+) (\S+) (\S+)')
     @registered
     def amount_raised(self, message,amount,organisation,source):
@@ -85,17 +84,3 @@ class App (rapidsms.app.App):
 	message.respond(message.text)
 	return True
     amount_raised.format="amount [amount] [organisation_code] [source]"
-
-
-    keyword.prefix = ["food"]
-    @keyword(r'(\S+) (\S+) (\S+)')
-    @registered
-    def food_distribution(self, message):
-	'''amount raised
-        Format: sales [crop] [weight] [price] 
-        '''
-	message.respond(message.text)
-	return True
-    food_distribution.format=""
-      
-
