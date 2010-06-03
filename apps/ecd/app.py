@@ -74,7 +74,31 @@ class App (rapidsms.app.App):
         message.was_handled = bool(self.handled)
         return self.handled
 
-    keyword.prefix = ["amount"]
+    keyword.prefix = ["gd"]
+    @keyword(r'(\S+) (\S+) (\S+)')
+    @registered
+    def child_grade(self, message,student_code,overall_grade,term):
+	'''student grades per term
+        Format: sales [crop] [weight] [price] 
+        '''
+	message.respond(message.text)
+	return True
+    child_grade.format="grade [student_code] [grade] [term]"
+       
+
+    keyword.prefix = ["en"]
+    @keyword(r'(\S+) (\d+) (\S+) (\d+)')
+    @registered
+    def enrollment_per_center(self,message,male_code,male_count,female_code,female_count):
+	'''enrollment per term
+        Format: sales [crop] [weight] [price] 
+        '''
+	message.respond(message.text)
+	return True
+    enrollment_per_center.format="en [male_code] [male_count] [female_code] [female_count]"
+
+
+    keyword.prefix = ["amt"]
     @keyword(r'(\S+) (\S+) (\S+)')
     @registered
     def amount_raised(self, message,amount,organisation,source):
@@ -84,3 +108,17 @@ class App (rapidsms.app.App):
 	message.respond(message.text)
 	return True
     amount_raised.format="amount [amount] [organisation_code] [source]"
+
+
+    keyword.prefix = ["food"]
+    @keyword(r'(\S+) (\S+) (\S+)')
+    @registered
+    def food_distribution(self, message):
+	'''amount raised
+        Format: sales [crop] [weight] [price] 
+        '''
+	message.respond(message.text)
+	return True
+    food_distribution.format=""
+      
+
